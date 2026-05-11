@@ -9,13 +9,22 @@ spring:
         default_schema: app
 
 management:
+  # Separate management port so actuator is never reachable on the public API port.
+  # Override to 8080 in local dev if running behind a single reverse proxy.
+  server:
+    port: ${MANAGEMENT_PORT:8081}
   endpoints:
     web:
       exposure:
+        # Allowlist: only expose what monitoring infrastructure actually needs.
         include: health,info,prometheus
   endpoint:
     health:
+      # Full details available only to authenticated callers.
       show-details: when-authorized
+    prometheus:
+      # Prometheus scrape endpoint — protected by the main security filter chain.
+      enabled: true
   metrics:
     tags:
       # Attached to every meter — essential for Grafana dashboard filtering.
