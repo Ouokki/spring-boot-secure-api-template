@@ -13,7 +13,19 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/secureapi
     username: secureapi
-    password: secureapi
+    # Must match POSTGRES_PASSWORD in compose.yaml. Use .env for the real value.
+    password: CHANGE_ME_BEFORE_RUNNING
+    hikari:
+      # Pool sizing formula: cpu_count * 2 + effective_spindle_count.
+      # Laptop with 4 cores and SSD: 4*2+1=9. Keeping it lower for dev to avoid
+      # exhausting the shared compose Postgres connection limit.
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # Pool name appears in logs and JMX — critical for diagnosing pool exhaustion.
+      pool-name: SecureApi-local
   jpa:
     hibernate:
       ddl-auto: validate
@@ -28,12 +40,18 @@ server:
 
 ---
 # ─── test profile ─────────────────────────────────────────────────────────────
-# Datasource is overridden at runtime by Testcontainers via @DynamicPropertySource.
-# The URL here is intentionally left out; integration tests provide it.
+# Datasource URL and credentials are injected at runtime by Testcontainers via
+# @DynamicPropertySource. This block documents the expected properties so
+# Spring's relaxed binding can find them even if Testcontainers hasn't run yet.
 spring:
   config:
     activate:
       on-profile: test
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      pool-name: SecureApi-test
   jpa:
     hibernate:
       ddl-auto: validate
@@ -49,20 +67,23 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    # All values must come from environment variables. Never hard-code prod credentials.
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
     hikari:
       # Pool sizing formula: cpu_count * 2 + effective_spindle_count.
       # For a typical 2-vCPU cloud instance with SSD (spindle_count=1): 2*2+1=5.
-      # Tune per actual hardware; this default is intentionally conservative.
+      # Over-sizing the pool hurts: each idle connection consumes ~8 MB on Postgres
+      # and adds latency on context switches. Tune per actual hardware; the default
+      # is intentionally conservative to fail fast rather than silently degrade.
       maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:5}
       minimum-idle: ${HIKARI_MIN_IDLE:2}
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      # heartbeat to detect stale connections through NAT/firewall idle timeouts
       keepalive-time: 60000
+      pool-name: SecureApi-prod
   jpa:
     hibernate:
       ddl-auto: validate
@@ -71,7 +92,7 @@ spring:
   flyway:
     enabled: true
     # baseline-on-migrate is safe only when the schema already exists and was
-    # created outside Flyway. Set via env var, never enable blindly.
+    # created outside Flyway. Enable via env var, never hard-code to true.
     baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
 
 server:
