@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.diffplug.spotless") version "6.25.0"
+    id("info.solidsoft.pitest") version "1.15.0"
     checkstyle
     jacoco
 }
@@ -117,6 +118,35 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+// ─── PIT Mutation Testing ────────────────────────────────────────────────────
+// Run with: ./gradlew pitest
+// Reports land in build/reports/pitest/
+pitest {
+    junit5PluginVersion = "1.2.1"
+    // Target only the business-logic packages — skip generated/config classes.
+    targetClasses = setOf(
+        "com.ouokki.secureapi.auth.*",
+        "com.ouokki.secureapi.user.*",
+        "com.ouokki.secureapi.ratelimit.*",
+        "com.ouokki.secureapi.observability.*",
+        "com.ouokki.secureapi.audit.*"
+    )
+    targetTests = setOf("com.ouokki.secureapi.*")
+    // Exclude Spring-generated proxies and config classes from mutation.
+    excludedClasses = setOf(
+        "com.ouokki.secureapi.*Config",
+        "com.ouokki.secureapi.*Properties",
+        "com.ouokki.secureapi.SecureApiApplication"
+    )
+    mutators = setOf("DEFAULTS")
+    // Aim for 70 % mutation coverage; raise as the suite matures.
+    mutationThreshold = 70
+    outputFormats = setOf("HTML", "XML")
+    threads = 2
+    // Avoid hitting Docker/Testcontainers in mutation runs.
+    avoidCallsTo = setOf("org.testcontainers")
 }
 
 // ─── Test ────────────────────────────────────────────────────────────────────
