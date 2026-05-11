@@ -3,6 +3,10 @@ spring:
     name: secure-api
   profiles:
     active: local
+  jpa:
+    properties:
+      hibernate:
+        default_schema: app
 
 ---
 # ─── local profile ────────────────────────────────────────────────────────────
@@ -34,6 +38,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: false
+    default-schema: app
 
 server:
   port: 8080
@@ -59,6 +64,7 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+    default-schema: app
 
 ---
 # ─── prod profile ─────────────────────────────────────────────────────────────
@@ -94,6 +100,7 @@ spring:
     # baseline-on-migrate is safe only when the schema already exists and was
     # created outside Flyway. Enable via env var, never hard-code to true.
     baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+    default-schema: app
 
 server:
   port: ${PORT:8080}
