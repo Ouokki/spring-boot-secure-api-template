@@ -36,7 +36,10 @@
         <module name="LocalFinalVariableName"/>
         <module name="MemberName"/>
         <module name="StaticVariableName"/>
-        <module name="ConstantName"/>
+        <!-- Allow log/logger as static final names; Google Java Style exempts loggers -->
+        <module name="ConstantName">
+            <property name="format" value="^log(ger)?$|^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
+        </module>
         <module name="PackageName">
             <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
         </module>
