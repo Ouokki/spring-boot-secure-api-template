@@ -15,3 +15,6 @@ app:
     private-key-path: test-placeholder
     public-key-path: test-placeholder
     access-token-ttl-seconds: 900
+  security:
+    max-login-attempts: 5
+    lockout-duration-minutes: 15

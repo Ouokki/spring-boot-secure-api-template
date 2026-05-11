@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -29,6 +30,12 @@ public class User {
 
   @Column(nullable = false)
   private boolean enabled;
+
+  @Column(name = "failed_login_attempts", nullable = false)
+  private int failedLoginAttempts;
+
+  @Column(name = "locked_until")
+  private Instant lockedUntil;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -107,6 +114,22 @@ public class User {
     return updatedAt;
   }
 
+  public boolean isLocked() {
+    return lockedUntil != null && Instant.now().isBefore(lockedUntil);
+  }
+
+  public void recordFailedLogin(int maxAttempts, Duration lockoutDuration) {
+    this.failedLoginAttempts++;
+    if (this.failedLoginAttempts >= maxAttempts) {
+      this.lockedUntil = Instant.now().plus(lockoutDuration);
+    }
+  }
+
+  public void resetFailedLogins() {
+    this.failedLoginAttempts = 0;
+    this.lockedUntil = null;
+  }
+
   // ─── Setters for mutable state only ────────────────────────────────────────
 
   public void setPasswordHash(String passwordHash) {
@@ -115,5 +138,13 @@ public class User {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public int getFailedLoginAttempts() {
+    return failedLoginAttempts;
+  }
+
+  public Instant getLockedUntil() {
+    return lockedUntil;
   }
 }

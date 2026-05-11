@@ -15,6 +15,11 @@ app:
     public-key-path: ${JWT_PUBLIC_KEY_PATH:dev-keys/public.pem}
     # 15 minutes — short TTL limits the blast radius of a stolen token.
     access-token-ttl-seconds: ${JWT_ACCESS_TOKEN_TTL_SECONDS:900}
+  security:
+    # Lock account after this many consecutive failures; reset on success.
+    max-login-attempts: ${MAX_LOGIN_ATTEMPTS:5}
+    # Minutes the account stays locked before the next attempt is allowed.
+    lockout-duration-minutes: ${LOCKOUT_DURATION_MINUTES:15}
 
 ---
 # ─── local profile ────────────────────────────────────────────────────────────
