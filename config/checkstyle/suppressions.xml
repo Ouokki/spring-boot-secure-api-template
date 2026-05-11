@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.0//EN"
+    "https://checkstyle.org/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+    <!-- Generated sources and Spring Boot entry point are exempt from some rules -->
+    <suppress files="SecureApiApplication\.java" checks="HideUtilityClassConstructor"/>
+
+    <!-- Test files: allow magic numbers, long methods, etc. -->
+    <suppress files=".*[/\\]test[/\\].*" checks="MagicNumber"/>
+    <suppress files=".*[/\\]test[/\\].*" checks="MethodLength"/>
+    <suppress files=".*[/\\]test[/\\].*" checks="AnonInnerLength"/>
+</suppressions>

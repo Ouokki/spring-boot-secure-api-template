@@ -2,6 +2,9 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "6.25.0"
+    checkstyle
+    jacoco
 }
 
 group = "com.ouokki"
@@ -66,6 +69,58 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// ─── Spotless ────────────────────────────────────────────────────────────────
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        googleJavaFormat("1.22.0")
+        formatAnnotations()
+        // The comment below stays out — Spotless strips trailing newlines itself.
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+// ─── Checkstyle ──────────────────────────────────────────────────────────────
+checkstyle {
+    toolVersion = "10.18.2"
+    configFile = file("config/checkstyle/checkstyle.xml")
+    isIgnoreFailures = false
+    maxWarnings = 0
+}
+
+// ─── JaCoCo ──────────────────────────────────────────────────────────────────
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// Coverage threshold configured at 80% but NOT wired into tasks.check yet.
+// Enable once the test suite has meaningful coverage (commit 21+).
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
+}
+
+// ─── Test ────────────────────────────────────────────────────────────────────
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
