@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: secure-api
+  profiles:
+    active: local
+
+---
+# ─── local profile ────────────────────────────────────────────────────────────
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/secureapi
+    username: secureapi
+    password: secureapi
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: false
+
+server:
+  port: 8080
+
+---
+# ─── test profile ─────────────────────────────────────────────────────────────
+# Datasource is overridden at runtime by Testcontainers via @DynamicPropertySource.
+# The URL here is intentionally left out; integration tests provide it.
+spring:
+  config:
+    activate:
+      on-profile: test
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  flyway:
+    enabled: true
+
+---
+# ─── prod profile ─────────────────────────────────────────────────────────────
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    # All values must come from environment variables. Never hard-code prod credentials.
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      # Pool sizing formula: cpu_count * 2 + effective_spindle_count.
+      # For a typical 2-vCPU cloud instance with SSD (spindle_count=1): 2*2+1=5.
+      # Tune per actual hardware; this default is intentionally conservative.
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:5}
+      minimum-idle: ${HIKARI_MIN_IDLE:2}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 60000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  flyway:
+    enabled: true
+    # baseline-on-migrate is safe only when the schema already exists and was
+    # created outside Flyway. Set via env var, never enable blindly.
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+
+server:
+  port: ${PORT:8080}
