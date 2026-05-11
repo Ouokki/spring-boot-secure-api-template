@@ -1,9 +1,10 @@
-spring:
-  autoconfigure:
-    # Disable database-related auto-configuration for unit tests that do not
-    # spin up a container. Integration tests that need a real DB override this
-    # via @DynamicPropertySource and @ActiveProfiles("test").
-    exclude:
-      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+# Test defaults — applied to all test contexts.
+# - Unit tests that don't need a database annotate with @SpringBootTest and
+#   explicitly pass the exclude properties (see SecureApiApplicationTests).
+# - Integration tests supply the Testcontainers datasource URL via
+#   @DynamicPropertySource so Spring wires the full context including JPA/Flyway.
+logging:
+  level:
+    root: WARN
+    com.ouokki: DEBUG
+    org.flywaydb: INFO
