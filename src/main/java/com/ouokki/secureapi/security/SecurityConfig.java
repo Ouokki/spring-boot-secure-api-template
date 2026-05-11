@@ -82,7 +82,14 @@ public class SecurityConfig {
                     }))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/auth/**", "/actuator/health", "/actuator/info")
+                auth.requestMatchers(
+                        "/auth/**",
+                        "/actuator/health",
+                        "/actuator/info",
+                        // OpenAPI spec and Swagger UI — disable in prod via springdoc.* properties.
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html")
                     .permitAll()
                     .anyRequest()
                     .authenticated());
