@@ -1,5 +1,6 @@
 package com.ouokki.secureapi;
 
+import com.ouokki.secureapi.auth.RefreshTokenRepository;
 import com.ouokki.secureapi.security.JwtIssuer;
 import com.ouokki.secureapi.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,8 @@ class SecureApiApplicationTests {
 
   // Prevents JwtIssuer from reading PEM files that don't exist outside dev/CI.
   @MockitoBean private JwtIssuer jwtIssuer;
+
+  @MockitoBean private RefreshTokenRepository refreshTokenRepository;
 
   @Test
   void contextLoads() {}

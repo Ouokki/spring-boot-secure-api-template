@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ouokki.secureapi.SecureApiApplication;
+import com.ouokki.secureapi.auth.RefreshTokenRepository;
 import com.ouokki.secureapi.user.UserRepository;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +48,7 @@ class JwtAuthenticationFilterTest {
   static JwtIssuer realIssuer;
 
   @MockitoBean UserRepository userRepository;
+  @MockitoBean RefreshTokenRepository refreshTokenRepository;
 
   @Autowired MockMvc mockMvc;
 
