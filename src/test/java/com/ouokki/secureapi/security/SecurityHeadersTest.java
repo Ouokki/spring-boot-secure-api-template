@@ -33,8 +33,8 @@ class SecurityHeadersTest {
   @Test
   void everyResponseCarriesOwaspSecurityHeaders() throws Exception {
     mockMvc
-        .perform(get("/auth/login").secure(true))
-        .andExpect(status().is4xxClientError()) // 405 Method Not Allowed is fine here
+        .perform(get("/api/protected").secure(true))
+        .andExpect(status().isUnauthorized()) // JWT auth required → 401
         .andExpect(header().string("X-Content-Type-Options", "nosniff"))
         .andExpect(header().string("X-Frame-Options", "DENY"))
         .andExpect(header().exists("Strict-Transport-Security"))
