@@ -1,0 +1,42 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": ["before 6am on Monday"],
+  "timezone": "Europe/Paris",
+  "labels": ["dependencies"],
+  "assignees": ["ouokki"],
+  "packageRules": [
+    {
+      "description": "Group all Spring Boot related updates into a single PR",
+      "matchPackagePrefixes": ["org.springframework"],
+      "groupName": "spring-framework"
+    },
+    {
+      "description": "Group all Spring Boot plugin/BOM updates",
+      "matchPackageNames": ["org.springframework.boot"],
+      "groupName": "spring-boot"
+    },
+    {
+      "description": "Auto-merge patch-level updates for non-critical deps",
+      "matchUpdateTypes": ["patch"],
+      "matchPackagePrefixes": [
+        "io.jsonwebtoken",
+        "net.logstash",
+        "com.bucket4j",
+        "org.springdoc"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Pin Docker base image digests for reproducible builds",
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true
+  }
+}
