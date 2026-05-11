@@ -7,11 +7,13 @@ import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +31,34 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
+        .headers(
+            headers ->
+                headers
+                    // HSTS: browsers remember HTTPS-only for 1 year, including sub-domains.
+                    .httpStrictTransportSecurity(
+                        hsts ->
+                            hsts.maxAgeInSeconds(31_536_000)
+                                .includeSubDomains(true)
+                                .preload(true))
+                    // Prevent the response being embedded in a frame (clickjacking).
+                    .frameOptions(frame -> frame.deny())
+                    // Prevent MIME-type sniffing.
+                    .contentTypeOptions(Customizer.withDefaults())
+                    // Disable legacy XSS auditor — modern recommendation per OWASP.
+                    .xssProtection(xss -> xss.disable())
+                    // CSP: pure API — no scripts, styles, or frames needed.
+                    .contentSecurityPolicy(
+                        csp -> csp.policyDirectives("default-src 'none'; frame-ancestors 'none'"))
+                    // Referrer-Policy: omit referrer for cross-origin requests.
+                    .referrerPolicy(
+                        referrer ->
+                            referrer.policy(
+                                ReferrerPolicyHeaderWriter.ReferrerPolicy
+                                    .STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                    // Permissions-Policy: disable browser features the API will never use.
+                    .permissionsPolicy(
+                        perm ->
+                            perm.policy("camera=(), microphone=(), geolocation=(), payment=()")))
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
