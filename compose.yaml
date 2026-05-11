@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: secureapi-postgres
+    environment:
+      POSTGRES_DB: secureapi
+      POSTGRES_USER: secureapi
+      # Clearly fake local-dev password. Never use this value in production.
+      POSTGRES_PASSWORD: CHANGE_ME_BEFORE_RUNNING
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secureapi -d secureapi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
