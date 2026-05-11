@@ -8,7 +8,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ouokki.secureapi.auth.dto.LoginRequest;
 import com.ouokki.secureapi.auth.dto.RegisterRequest;
 import com.ouokki.secureapi.support.PostgresIntegrationTest;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.Base64;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -24,6 +31,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @AutoConfigureMockMvc
 class AuthControllerIT {
 
+  @TempDir static Path keyDir;
+
   @Container
   static PostgreSQLContainer<?> postgres =
       new PostgreSQLContainer<>("postgres:16-alpine")
@@ -31,11 +40,32 @@ class AuthControllerIT {
           .withUsername("secureapi")
           .withPassword("test-secret");
 
+  @BeforeAll
+  static void generateKeys() throws Exception {
+    KeyPair kp = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+    Path priv = keyDir.resolve("private.pem");
+    Path pub = keyDir.resolve("public.pem");
+    Files.writeString(
+        priv,
+        "-----BEGIN PRIVATE KEY-----\n"
+            + Base64.getMimeEncoder(64, new byte[] {'\n'})
+                .encodeToString(kp.getPrivate().getEncoded())
+            + "\n-----END PRIVATE KEY-----\n");
+    Files.writeString(
+        pub,
+        "-----BEGIN PUBLIC KEY-----\n"
+            + Base64.getMimeEncoder(64, new byte[] {'\n'})
+                .encodeToString(kp.getPublic().getEncoded())
+            + "\n-----END PUBLIC KEY-----\n");
+  }
+
   @DynamicPropertySource
-  static void registerPostgresProps(DynamicPropertyRegistry registry) {
+  static void registerProps(DynamicPropertyRegistry registry) {
     registry.add("spring.datasource.url", postgres::getJdbcUrl);
     registry.add("spring.datasource.username", postgres::getUsername);
     registry.add("spring.datasource.password", postgres::getPassword);
+    registry.add("app.jwt.private-key-path", () -> keyDir.resolve("private.pem").toString());
+    registry.add("app.jwt.public-key-path", () -> keyDir.resolve("public.pem").toString());
   }
 
   @Autowired private MockMvc mockMvc;
@@ -55,7 +85,6 @@ class AuthControllerIT {
 
   @Test
   void registerWithDuplicateEmailReturns201WithoutRevealingExistence() throws Exception {
-    // Both requests must succeed silently — user enumeration prevention.
     var req =
         objectMapper.writeValueAsString(new RegisterRequest("dup@example.com", "Str0ng!Password"));
 
@@ -92,7 +121,6 @@ class AuthControllerIT {
 
   @Test
   void loginHappyPath() throws Exception {
-    // Register first then log in.
     String email = "login@example.com";
     String password = "Str0ng!Password";
     mockMvc

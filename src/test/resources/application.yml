@@ -1,10 +1,17 @@
 # Test defaults — applied to all test contexts.
 # - Unit tests that don't need a database annotate with @SpringBootTest and
 #   explicitly pass the exclude properties (see SecureApiApplicationTests).
-# - Integration tests supply the Testcontainers datasource URL via
-#   @DynamicPropertySource so Spring wires the full context including JPA/Flyway.
+# - Integration tests that need a real DB supply JDBC props via @DynamicPropertySource.
 logging:
   level:
     root: WARN
     com.ouokki: DEBUG
     org.flywaydb: INFO
+
+# Placeholder values so JwtProperties bean validation passes in all test contexts.
+# Integration tests that need real JWT issuance generate keys in @BeforeAll via KeyPairGenerator.
+app:
+  jwt:
+    private-key-path: test-placeholder
+    public-key-path: test-placeholder
+    access-token-ttl-seconds: 900

@@ -3,8 +3,10 @@ package com.ouokki.secureapi.auth;
 import com.ouokki.secureapi.auth.dto.AuthResponse;
 import com.ouokki.secureapi.auth.dto.LoginRequest;
 import com.ouokki.secureapi.auth.dto.RegisterRequest;
+import com.ouokki.secureapi.security.JwtIssuer;
 import com.ouokki.secureapi.user.User;
 import com.ouokki.secureapi.user.UserRepository;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,17 +19,20 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final PasswordHasher passwordHasher;
+  private final JwtIssuer jwtIssuer;
 
-  public AuthService(UserRepository userRepository, PasswordHasher passwordHasher) {
+  public AuthService(
+      UserRepository userRepository, PasswordHasher passwordHasher, JwtIssuer jwtIssuer) {
     this.userRepository = userRepository;
     this.passwordHasher = passwordHasher;
+    this.jwtIssuer = jwtIssuer;
   }
 
   @Transactional
   public void register(RegisterRequest request) {
     // We do NOT reveal whether the email is already registered.
     // If it exists we silently succeed from the caller's perspective.
-    // A real implementation would send a "account already exists" email to the address.
+    // A production implementation would email the existing user instead of failing loudly.
     if (userRepository.existsByEmail(request.email())) {
       log.debug(
           "Registration attempted for already-registered email (suppressed for enumeration prevention)");
@@ -56,8 +61,9 @@ public class AuthService {
       throw new InvalidCredentialsException();
     }
 
-    // JWT issuance will be wired here in commit 9.
-    // Returning placeholder tokens for now so the endpoint is end-to-end testable.
-    return new AuthResponse("access-token-placeholder", "refresh-token-placeholder");
+    String accessToken = jwtIssuer.issue(user.getId().toString(), List.of("ROLE_USER"));
+
+    // Refresh token issuance will be wired here in commit 11.
+    return new AuthResponse(accessToken, null);
   }
 }

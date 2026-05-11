@@ -1,5 +1,6 @@
 package com.ouokki.secureapi;
 
+import com.ouokki.secureapi.security.JwtIssuer;
 import com.ouokki.secureapi.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,9 @@ class SecureApiApplicationTests {
 
   // Satisfies AuthService's UserRepository dependency without a real datasource.
   @MockitoBean private UserRepository userRepository;
+
+  // Prevents JwtIssuer from reading PEM files that don't exist outside dev/CI.
+  @MockitoBean private JwtIssuer jwtIssuer;
 
   @Test
   void contextLoads() {}
