@@ -1,5 +1,6 @@
 package com.ouokki.secureapi.auth;
 
+import com.ouokki.secureapi.audit.Audited;
 import com.ouokki.secureapi.auth.dto.AuthResponse;
 import com.ouokki.secureapi.auth.dto.LoginRequest;
 import com.ouokki.secureapi.auth.dto.RegisterRequest;
@@ -44,6 +45,7 @@ public class AuthService {
     this.dummyHash = passwordHasher.hash("__timing_normalization_dummy__");
   }
 
+  @Audited(action = "USER_REGISTER")
   @Transactional
   public void register(RegisterRequest request) {
     if (userRepository.existsByEmail(request.email())) {
@@ -56,6 +58,7 @@ public class AuthService {
     log.info("User registered: {}", user.getId());
   }
 
+  @Audited(action = "USER_LOGIN")
   @Transactional
   public AuthResponse login(LoginRequest request) {
     Optional<User> maybeUser = userRepository.findByEmail(request.email());
