@@ -8,8 +8,10 @@ import com.ouokki.secureapi.auth.AuthService;
 import com.ouokki.secureapi.auth.RefreshTokenRepository;
 import com.ouokki.secureapi.auth.RefreshTokenService;
 import com.ouokki.secureapi.user.UserRepository;
+import com.ouokki.secureapi.ratelimit.RateLimitProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest
 @Import(SecurityConfig.class)
+@EnableConfigurationProperties(RateLimitProperties.class)
 class SecurityHeadersTest {
 
   @Autowired MockMvc mockMvc;

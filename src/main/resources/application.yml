@@ -20,6 +20,11 @@ app:
     max-login-attempts: ${MAX_LOGIN_ATTEMPTS:5}
     # Minutes the account stays locked before the next attempt is allowed.
     lockout-duration-minutes: ${LOCKOUT_DURATION_MINUTES:15}
+  rate-limit:
+    # Maximum requests allowed per unique client IP within a 1-minute window.
+    requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:60}
+    # Tokens available immediately at startup (burst allowance, must be ≤ requests-per-minute).
+    burst-capacity: ${RATE_LIMIT_BURST_CAPACITY:10}
 
 ---
 # ─── local profile ────────────────────────────────────────────────────────────

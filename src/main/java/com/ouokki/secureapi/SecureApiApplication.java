@@ -1,13 +1,11 @@
 package com.ouokki.secureapi;
 
-import com.ouokki.secureapi.security.JwtProperties;
-import com.ouokki.secureapi.security.SecurityProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@EnableConfigurationProperties({JwtProperties.class, SecurityProperties.class})
+@ConfigurationPropertiesScan
 public class SecureApiApplication {
 
   public static void main(String[] args) {
