@@ -1,0 +1,8 @@
+# Global owner — reviews required on every PR
+* @Ouokki
+
+# Security-sensitive paths
+src/main/java/com/ouokki/secureapi/security/  @Ouokki
+dev-keys/                                      @Ouokki
+.github/workflows/                             @Ouokki
+build.gradle.kts                               @Ouokki
