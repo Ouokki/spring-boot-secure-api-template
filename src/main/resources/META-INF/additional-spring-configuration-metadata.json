@@ -1,0 +1,83 @@
+{
+  "properties": [
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Allowed CORS origins. Must be set explicitly — wildcards are not permitted.",
+      "sourceType": "com.ouokki.secureapi.security.CorsProperties"
+    },
+    {
+      "name": "app.cors.allowed-methods",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Allowed HTTP methods. Defaults to GET, POST, PUT, PATCH, DELETE, OPTIONS.",
+      "sourceType": "com.ouokki.secureapi.security.CorsProperties"
+    },
+    {
+      "name": "app.cors.allowed-headers",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Allowed request headers. Defaults to all headers (*).",
+      "sourceType": "com.ouokki.secureapi.security.CorsProperties"
+    },
+    {
+      "name": "app.cors.allow-credentials",
+      "type": "java.lang.Boolean",
+      "description": "Whether to include credentials (cookies, auth headers) in CORS requests.",
+      "sourceType": "com.ouokki.secureapi.security.CorsProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "app.cors.max-age-seconds",
+      "type": "java.lang.Long",
+      "description": "Preflight response cache TTL in seconds. Defaults to 1800 (30 minutes).",
+      "sourceType": "com.ouokki.secureapi.security.CorsProperties",
+      "defaultValue": 1800
+    },
+    {
+      "name": "app.jwt.private-key-path",
+      "type": "java.lang.String",
+      "description": "Path to the RSA private key PEM file used to sign JWTs.",
+      "sourceType": "com.ouokki.secureapi.security.JwtProperties"
+    },
+    {
+      "name": "app.jwt.public-key-path",
+      "type": "java.lang.String",
+      "description": "Path to the RSA public key PEM file used to verify JWTs.",
+      "sourceType": "com.ouokki.secureapi.security.JwtProperties"
+    },
+    {
+      "name": "app.jwt.access-token-ttl-seconds",
+      "type": "java.lang.Long",
+      "description": "Access token TTL in seconds. Defaults to 900 (15 minutes).",
+      "sourceType": "com.ouokki.secureapi.security.JwtProperties",
+      "defaultValue": 900
+    },
+    {
+      "name": "app.security.max-login-attempts",
+      "type": "java.lang.Integer",
+      "description": "Maximum consecutive login failures before the account is locked.",
+      "sourceType": "com.ouokki.secureapi.security.SecurityProperties",
+      "defaultValue": 5
+    },
+    {
+      "name": "app.security.lockout-duration-minutes",
+      "type": "java.lang.Long",
+      "description": "Minutes an account remains locked after exceeding max-login-attempts.",
+      "sourceType": "com.ouokki.secureapi.security.SecurityProperties",
+      "defaultValue": 15
+    },
+    {
+      "name": "app.rate-limit.requests-per-minute",
+      "type": "java.lang.Long",
+      "description": "Maximum requests allowed per IP per minute.",
+      "sourceType": "com.ouokki.secureapi.ratelimit.RateLimitProperties",
+      "defaultValue": 60
+    },
+    {
+      "name": "app.rate-limit.burst-capacity",
+      "type": "java.lang.Long",
+      "description": "Token bucket burst capacity (must be ≤ requests-per-minute).",
+      "sourceType": "com.ouokki.secureapi.ratelimit.RateLimitProperties",
+      "defaultValue": 10
+    }
+  ]
+}

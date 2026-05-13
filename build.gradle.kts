@@ -61,6 +61,9 @@ dependencies {
     // Argon2id — BouncyCastle is an optional dep of spring-security-crypto; must be declared explicitly
     implementation("org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion")
 
+    // Generates META-INF/spring-configuration-metadata.json for @ConfigurationProperties IDE support
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
@@ -108,9 +111,8 @@ tasks.jacocoTestReport {
     }
 }
 
-// Coverage threshold configured at 80% but NOT wired into tasks.check yet.
-// Enable once the test suite has meaningful coverage (commit 21+).
 tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
     violationRules {
         rule {
             limit {
@@ -118,6 +120,10 @@ tasks.jacocoTestCoverageVerification {
             }
         }
     }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 // ─── PIT Mutation Testing ────────────────────────────────────────────────────
